@@ -23,8 +23,8 @@ jobs:
       - name: Deploy Frontend to Pages
         uses: cloudflare/pages-action@v1
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: "accounting-app"
           directory: "frontend/dist"
       - name: Deploy Worker
@@ -32,4 +32,4 @@ jobs:
           npm install -g wrangler
           wrangler publish
         env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
