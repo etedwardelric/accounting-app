@@ -8,22 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-
       - name: Build Frontend
         run: |
           cd frontend
           npm install
           npm run build
-
       - name: Deploy Frontend to Pages
         uses: cloudflare/pages-action@v1
         with:
@@ -31,7 +27,6 @@ jobs:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: "accounting-app"
           directory: "frontend/dist"
-
       - name: Deploy Worker
         run: |
           npm install -g wrangler
