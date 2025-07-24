@@ -1,3 +1,8 @@
 name = "accounting-app"
 main = "worker/index.js"
 compatibility_date = "2025-07-24"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "accounting-app-d1"
+database_id = "7c6901fd-2b5e-45a4-a54d-507d54aaa710"

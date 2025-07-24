@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchTransactions, addTransaction, fetchMembers } from "../api/api";
+import { fetchReserve, addReserve, fetchMembers } from "../api/api";
 import { Bar } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, Tooltip, Legend, Title } from "chart.js";
 
@@ -7,37 +7,33 @@ Chart.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend, Title);
 
 const translations = {
   en: {
-    title: "Transactions",
+    title: "Reserve Fund",
     amount: "Amount",
     note: "Note",
-    payer: "Payer",
-    participants: "Participants",
+    member: "Member",
     add: "Add",
-    totalPayment: "Total Payments",
+    totalReserve: "Total Reserve",
   },
   zh: {
-    title: "账单记录",
+    title: "备用金记录",
     amount: "金额",
     note: "备注",
-    payer: "付款人",
-    participants: "参与人员",
+    member: "成员",
     add: "添加",
-    totalPayment: "付款总额",
+    totalReserve: "储备金总额",
   },
 };
 
-export default function Transactions({ lang = "en" }) {
-  const [transactions, setTransactions] = useState([]);
+export default function ReserveFund({ lang = "en" }) {
+  const [reserves, setReserves] = useState([]);
   const [members, setMembers] = useState([]);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
-  const [paidBy, setPaidBy] = useState("");
-  const [participants, setParticipants] = useState([]);
-
+  const [memberId, setMemberId] = useState("");
   const t = translations[lang] || translations.en;
 
   const loadData = () => {
-    fetchTransactions().then(setTransactions);
+    fetchReserve().then(setReserves);
     fetchMembers().then(setMembers);
   };
 
@@ -46,32 +42,30 @@ export default function Transactions({ lang = "en" }) {
   }, []);
 
   const handleAdd = async () => {
-    if (!amount || !paidBy) return;
-    await addTransaction({
+    if (!amount || !memberId) return;
+    await addReserve({
+      member_id: parseInt(memberId),
       amount: parseFloat(amount),
-      note,
-      paid_by: parseInt(paidBy),
-      participants
+      note
     });
     setAmount("");
     setNote("");
-    setPaidBy("");
-    setParticipants([]);
+    setMemberId("");
     loadData();
   };
 
-  const paidMap = {};
-  members.forEach(m => paidMap[m.id] = 0);
-  transactions.forEach(ti => {
-    paidMap[ti.paid_by] += ti.amount;
+  const reserveMap = {};
+  members.forEach(m => reserveMap[m.id] = 0);
+  reserves.forEach(r => {
+    reserveMap[r.member_id] += r.amount;
   });
 
   const chartData = {
     labels: members.map(m => m.name),
     datasets: [
       {
-        label: t.totalPayment,
-        data: members.map(m => paidMap[m.id]),
+        label: t.totalReserve,
+        data: members.map(m => reserveMap[m.id]),
         backgroundColor: members.map((_, idx) =>
           `hsl(${(idx * 50) % 360}, 60%, 60%)`
         )
@@ -85,23 +79,10 @@ export default function Transactions({ lang = "en" }) {
       <div className="mb-4 flex flex-col gap-2">
         <input value={amount} onChange={e => setAmount(e.target.value)} placeholder={t.amount} className="border p-2 rounded" />
         <input value={note} onChange={e => setNote(e.target.value)} placeholder={t.note} className="border p-2 rounded" />
-        <select value={paidBy} onChange={e => setPaidBy(e.target.value)} className="border p-2 rounded">
-          <option value="">{t.payer}</option>
+        <select value={memberId} onChange={e => setMemberId(e.target.value)} className="border p-2 rounded">
+          <option value="">{t.member}</option>
           {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
-        <label className="font-medium">{t.participants}:</label>
-        <div className="flex flex-wrap gap-2">
-          {members.map(m => (
-            <label key={m.id} className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={participants.includes(m.id)}
-                onChange={() => setParticipants(p => p.includes(m.id) ? p.filter(x => x !== m.id) : [...p, m.id])}
-              />
-              {m.name}
-            </label>
-          ))}
-        </div>
         <button onClick={handleAdd} className="bg-blue-500 text-white px-4 py-2 rounded">{t.add}</button>
       </div>
 
@@ -111,7 +92,7 @@ export default function Transactions({ lang = "en" }) {
           plugins: {
             title: {
               display: true,
-              text: t.totalPayment
+              text: t.totalReserve
             }
           }
         }} />
@@ -122,15 +103,15 @@ export default function Transactions({ lang = "en" }) {
           <tr>
             <th className="p-2">{t.amount}</th>
             <th className="p-2">{t.note}</th>
-            <th className="p-2">{t.payer}</th>
+            <th className="p-2">{t.member}</th>
           </tr>
         </thead>
         <tbody>
-          {transactions.map(ti => (
-            <tr key={ti.id}>
-              <td className="p-2">¥{ti.amount}</td>
-              <td className="p-2">{ti.note}</td>
-              <td className="p-2">{members.find(m => m.id === ti.paid_by)?.name || "-"}</td>
+          {reserves.map(r => (
+            <tr key={r.id}>
+              <td className="p-2">¥{r.amount}</td>
+              <td className="p-2">{r.note}</td>
+              <td className="p-2">{members.find(m => m.id === r.member_id)?.name || "-"}</td>
             </tr>
           ))}
         </tbody>
