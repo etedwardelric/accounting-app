@@ -11,25 +11,28 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "20"
+
       - name: Build Frontend
         run: |
           cd frontend
           npm install
           npm run build
-      - name: Deploy Frontend to Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: "accounting-app"
-          directory: "frontend/dist"
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Deploy Frontend
+        run: npx wrangler pages deploy frontend/dist --project-name=accounting-app
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Deploy Worker
-        run: |
-          npm install -g wrangler
-          wrangler publish
+        run: npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
