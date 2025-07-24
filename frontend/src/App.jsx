@@ -45,8 +45,8 @@ function App() {
 
   return (
     <Router>
-      <div className={\`min-h-screen \${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}\`}>
-        <nav className={\`shadow p-4 flex gap-4 \${darkMode ? "bg-gray-800" : "bg-white"}\`}>
+      <div className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}`}>
+        <nav className={`shadow p-4 flex gap-4 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
           <Link to="/dashboard" className="hover:text-blue-400">{t.dashboard}</Link>
           <Link to="/overview" className="hover:text-blue-400">{t.overview}</Link>
           <Link to="/transactions" className="hover:text-blue-400">{t.transactions}</Link>
